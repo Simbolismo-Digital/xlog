@@ -1,0 +1,40 @@
+<.header>
+  Listing Markdown viewer
+  <:actions>
+    <.link patch={~p"/markdown_viewer/new"}>
+      <.button>New Markdown viewer</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.table
+  id="markdown_viewer"
+  rows={@streams.markdown_viewer_collection}
+  row_click={fn {_id, markdown_viewer} -> JS.navigate(~p"/markdown_viewer/#{markdown_viewer}") end}
+>
+  <:action :let={{_id, markdown_viewer}}>
+    <div class="sr-only">
+      <.link navigate={~p"/markdown_viewer/#{markdown_viewer}"}>Show</.link>
+    </div>
+    <.link patch={~p"/markdown_viewer/#{markdown_viewer}/edit"}>Edit</.link>
+  </:action>
+  <:action :let={{id, markdown_viewer}}>
+    <.link
+      phx-click={JS.push("delete", value: %{id: markdown_viewer.id}) |> hide("##{id}")}
+      data-confirm="Are you sure?"
+    >
+      Delete
+    </.link>
+  </:action>
+</.table>
+
+<.modal :if={@live_action in [:new, :edit]} id="markdown_viewer-modal" show on_cancel={JS.patch(~p"/markdown_viewer")}>
+  <.live_component
+    module={XlogWeb.MarkdownViewerLive.FormComponent}
+    id={@markdown_viewer.id || :new}
+    title={@page_title}
+    action={@live_action}
+    markdown_viewer={@markdown_viewer}
+    patch={~p"/markdown_viewer"}
+  />
+</.modal>

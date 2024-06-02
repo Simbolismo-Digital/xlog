@@ -50,7 +50,8 @@ defmodule Xlog.MixProject do
       {:gettext, "~> 0.20"},
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
-      {:git_cli, "~> 0.3.0"}
+      {:git_cli, "~> 0.3.0"},
+      {:earmark, "~> 1.4"}
     ]
   end
 
