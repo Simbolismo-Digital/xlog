@@ -3,6 +3,7 @@ defmodule XlogWeb.MarkdownViewerLive.FormComponent do
 
   alias Xlog.MarkdownViewers
 
+  # <%!-- phx-change="validate" --%>
   @impl true
   def render(assigns) do
     ~H"""
@@ -16,7 +17,6 @@ defmodule XlogWeb.MarkdownViewerLive.FormComponent do
         for={@form}
         id="markdown_viewer-form"
         phx-target={@myself}
-        phx-change="validate"
         phx-submit="save"
       >
 
@@ -41,15 +41,15 @@ defmodule XlogWeb.MarkdownViewerLive.FormComponent do
      |> assign_form(changeset)}
   end
 
-  @impl true
-  def handle_event("validate", %{"markdown_viewer" => markdown_viewer_params}, socket) do
-    changeset =
-      socket.assigns.markdown_viewer
-      |> MarkdownViewers.change_markdown_viewer(markdown_viewer_params)
-      |> Map.put(:action, :validate)
+  # @impl true
+  # def handle_event("validate", %{"markdown_viewer" => markdown_viewer_params}, socket) do
+  #   changeset =
+  #     socket.assigns.markdown_viewer
+  #     |> MarkdownViewers.change_markdown_viewer(markdown_viewer_params)
+  #     |> Map.put(:action, :validate)
 
-    {:noreply, assign_form(socket, changeset)}
-  end
+  #   {:noreply, assign_form(socket, changeset)}
+  # end
 
   def handle_event("save", %{"markdown_viewer" => markdown_viewer_params}, socket) do
     save_markdown_viewer(socket, socket.assigns.action, markdown_viewer_params)
