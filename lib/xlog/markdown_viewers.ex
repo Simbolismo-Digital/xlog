@@ -18,7 +18,30 @@ defmodule Xlog.MarkdownViewers do
 
   """
   def list_markdown_viewer do
-    Repo.all(MarkdownViewer)
+    Xlog.Blog.content_path()
+    |> File.ls!()
+    |> Enum.map(&get_from_file/1)
+  end
+
+  def get_from_file(id) do
+    {:ok, creation_time, modification_time} = file_times(Xlog.Blog.post_path(id))
+    {:ok, metadata} = Xlog.Blog.post_metadata(id)
+    %MarkdownViewer{id: id, title: metadata.title, metadata: metadata, inserted_at: creation_time, updated_at: modification_time}
+  end
+
+  def file_times(path) do
+    case File.stat(path) do
+      {:ok, %File.Stat{ctime: creation_time, mtime: modification_time}} ->
+        {:ok, iso8601(creation_time), iso8601(modification_time)}
+
+      {:error, reason} ->
+        {:error, reason}
+    end
+  end
+
+  def iso8601(time) do
+    NaiveDateTime.from_erl!(time)
+    |> NaiveDateTime.to_iso8601()
   end
 
   @doc """

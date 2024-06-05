@@ -1,6 +1,5 @@
 <.header>
-  Markdown viewer
-  <%!-- Markdown viewer <%= @markdown_viewer.id %> --%>
+  Markdown viewer <%!-- Markdown viewer <%= @markdown_viewer.id %> --%>
   <:subtitle>This is a markdown_viewer record from your blog.</:subtitle>
 
   <%!-- <:actions>
@@ -11,7 +10,7 @@
 </.header>
 
 <div class="markdown-container">
-  <%= raw @content %>
+  <%= raw(@content) %>
 </div>
 
 <%!-- 

@@ -19,7 +19,6 @@ defmodule XlogWeb.MarkdownViewerLive.FormComponent do
         phx-change="validate"
         phx-submit="save"
       >
-
         <:actions>
           <.button phx-disable-with="Saving...">Save Markdown viewer</.button>
         </:actions>
@@ -53,7 +52,10 @@ defmodule XlogWeb.MarkdownViewerLive.FormComponent do
   end
 
   defp save_markdown_viewer(socket, :edit, markdown_viewer_params) do
-    case MarkdownViewers.update_markdown_viewer(socket.assigns.markdown_viewer, markdown_viewer_params) do
+    case MarkdownViewers.update_markdown_viewer(
+           socket.assigns.markdown_viewer,
+           markdown_viewer_params
+         ) do
       {:ok, markdown_viewer} ->
         notify_parent({:saved, markdown_viewer})
 

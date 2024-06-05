@@ -47,7 +47,9 @@ defmodule XlogWeb.MarkdownViewerLiveTest do
     test "updates markdown_viewer in listing", %{conn: conn, markdown_viewer: markdown_viewer} do
       {:ok, index_live, _html} = live(conn, ~p"/markdown_viewer")
 
-      assert index_live |> element("#markdown_viewer-#{markdown_viewer.id} a", "Edit") |> render_click() =~
+      assert index_live
+             |> element("#markdown_viewer-#{markdown_viewer.id} a", "Edit")
+             |> render_click() =~
                "Edit Markdown viewer"
 
       assert_patch(index_live, ~p"/markdown_viewer/#{markdown_viewer}/edit")
@@ -69,7 +71,10 @@ defmodule XlogWeb.MarkdownViewerLiveTest do
     test "deletes markdown_viewer in listing", %{conn: conn, markdown_viewer: markdown_viewer} do
       {:ok, index_live, _html} = live(conn, ~p"/markdown_viewer")
 
-      assert index_live |> element("#markdown_viewer-#{markdown_viewer.id} a", "Delete") |> render_click()
+      assert index_live
+             |> element("#markdown_viewer-#{markdown_viewer.id} a", "Delete")
+             |> render_click()
+
       refute has_element?(index_live, "#markdown_viewer-#{markdown_viewer.id}")
     end
   end

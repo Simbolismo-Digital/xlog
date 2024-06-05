@@ -3,7 +3,7 @@ defmodule XlogWeb.MarkdownViewerLive.Show do
 
   alias Earmark
   alias Xlog.MarkdownViewers
-
+  alias XlogWeb.MarkdownViewerLive.Functions
 
   @impl true
   def mount(_params, _session, socket) do
@@ -12,9 +12,10 @@ defmodule XlogWeb.MarkdownViewerLive.Show do
 
   @impl true
   def handle_params(params, _url, socket) do
-    md_content = File.read!("content/blog/blog/content/2e7dfede-0852-4990-b4c0-3510c520dfb9/content/bec2178e-be3e-4e0d-b492-33ddef8ecb6d/README.md")
-    html_content = Earmark.as_html!(md_content)
+    md_content = Xlog.Blog.post_data(params["id"])
 
-    {:noreply, assign(socket, :content, html_content)}
+    {:ok, html_content, _} = Functions.as_html(md_content, gfm: true, breaks: true)
+
+    {:noreply, assign(socket, :content, String.split(html_content, "\n", trim: true))}
   end
 end

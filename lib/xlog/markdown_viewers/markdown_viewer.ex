@@ -3,8 +3,8 @@ defmodule Xlog.MarkdownViewers.MarkdownViewer do
   import Ecto.Changeset
 
   schema "markdown_viewer" do
-
-
+    field :title, :string, virtual: true
+    field :metadata, :map, virtual: true
     timestamps()
   end
 

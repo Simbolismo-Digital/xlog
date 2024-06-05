@@ -10,9 +10,7 @@ defmodule Xlog.MarkdownViewersFixtures do
   def markdown_viewer_fixture(attrs \\ %{}) do
     {:ok, markdown_viewer} =
       attrs
-      |> Enum.into(%{
-
-      })
+      |> Enum.into(%{})
       |> Xlog.MarkdownViewers.create_markdown_viewer()
 
     markdown_viewer

@@ -1,25 +1,54 @@
 defmodule Xlog.Blog do
 
-  @user_id "2e7dfede-0852-4990-b4c0-3510c520dfb9"
-  @post_1_id "bec2178e-be3e-4e0d-b492-33ddef8ecb6d"
+  # @user_id "2e7dfede-0852-4990-b4c0-3510c520dfb9"
+  # @post_1_id "bec2178e-be3e-4e0d-b492-33ddef8ecb6d"
 
   def url() do
     "git@github.com:Simbolismo-Digital/blog.git"
   end
 
-  def path() do
+  def repo_path() do
     "content/blog"
   end
 
+  def content_path() do
+    "#{repo_path()}/content"
+  end
+
+  def post_path(id) do
+    "#{content_path()}/#{id}/README.md"
+  end
+
+  def post_data(id) do
+    post_path(id)
+    |> File.read!()
+  end
+
+  # read
+  def post_metadata(id) do
+    path = "#{content_path()}/#{id}/meta.json"
+    with {:ok, content} <- File.read(path) do
+      Jason.decode(content, keys: :atoms)
+    end
+  end
+
+  # write
+  def post_metadata(id, metadata) do
+    path = "#{content_path()}/#{id}/meta.json"
+    with {:ok, json} <- Jason.encode(metadata) do
+        File.write(path, json)
+      end
+  end
+
   def repository() do
-    %Git.Repository{path: "#{File.cwd!()}/#{path()}"}
+    %Git.Repository{path: "#{File.cwd!()}/#{repo_path()}"}
   end
 
   def clone() do
-    if File.exists?(path()) do
+    if File.exists?(repo_path()) do
       {:ok, repository()}
     else
-      Git.clone([url(), path()])
+      Git.clone([url(), repo_path()])
     end
   end
 
@@ -27,7 +56,7 @@ defmodule Xlog.Blog do
     Git.pull(repository())
   end
 
-  # Work with partial data
+  ####### Work with partial data
 
   # def fetch() do
   #   Git.fetch(repository())
