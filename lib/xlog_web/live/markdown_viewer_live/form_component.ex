@@ -19,6 +19,10 @@ defmodule XlogWeb.MarkdownViewerLive.FormComponent do
         phx-change="validate"
         phx-submit="save"
       >
+
+        <.input id="markdown-editor-title" field={@form[:title]} type="text" label="Title" />
+        <.input id="markdown-editor-content" phx-hook="simpleMDE" field={@form[:content]} type="textarea" label="Content" />
+
         <:actions>
           <.button phx-disable-with="Saving...">Save Markdown viewer</.button>
         </:actions>

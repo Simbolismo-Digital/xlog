@@ -73,6 +73,7 @@ defmodule Xlog.MarkdownViewers do
 
   """
   def create_markdown_viewer(attrs \\ %{}) do
+    IO.inspect(attrs)
     %MarkdownViewer{}
     |> MarkdownViewer.changeset(attrs)
     |> Repo.insert()

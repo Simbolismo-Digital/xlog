@@ -4,6 +4,7 @@ defmodule Xlog.MarkdownViewers.MarkdownViewer do
 
   schema "markdown_viewer" do
     field :title, :string, virtual: true
+    field :content, :string, virtual: true
     field :metadata, :map, virtual: true
     timestamps()
   end

@@ -21,6 +21,7 @@ import "phoenix_html"
 import {Socket} from "phoenix"
 import {LiveSocket} from "phoenix_live_view"
 import topbar from "../vendor/topbar"
+import SimpleMDE from "../vendor/simplemde/simplemde.min.js"
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 let liveSocket = new LiveSocket("/live", Socket, {params: {_csrf_token: csrfToken}})
@@ -39,3 +40,14 @@ liveSocket.connect()
 // >> liveSocket.disableLatencySim()
 window.liveSocket = liveSocket
 
+liveSocket.hooks.simpleMDE = {
+    mounted() {
+      const simplemde = new SimpleMDE({ element: this.el });
+    },
+  };
+
+// function initializeSimpleMDE() {
+//     new SimpleMDE({ element: document.getElementById("markdown-editor-content") });
+//     // Optionally, you can remove the event listener after initialization if you only want it to run once.
+//     document.getElementById("markdown-editor-content").removeAttribute("onfocus");
+// }
