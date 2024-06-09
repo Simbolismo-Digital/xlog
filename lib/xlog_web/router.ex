@@ -21,10 +21,10 @@ defmodule XlogWeb.Router do
 
     live "/markdown_viewer", MarkdownViewerLive.Index, :index
     live "/markdown_viewer/new", MarkdownViewerLive.Index, :new
-    # live "/markdown_viewer/:id/edit", MarkdownViewerLive.Index, :edit
+    live "/markdown_viewer/:id/edit", MarkdownViewerLive.Index, :edit
 
     live "/markdown_viewer/:id", MarkdownViewerLive.Show, :show
-    # live "/markdown_viewer/:id/show/edit", MarkdownViewerLive.Show, :edit
+    live "/markdown_viewer/:id/show/edit", MarkdownViewerLive.Show, :edit
   end
 
   # Other scopes may use custom stacks.

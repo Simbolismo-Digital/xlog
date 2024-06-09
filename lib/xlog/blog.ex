@@ -19,9 +19,19 @@ defmodule Xlog.Blog do
     "#{content_path()}/#{id}/README.md"
   end
 
-  def post_data(id) do
+  def post_data!(id) do
     post_path(id)
     |> File.read!()
+  end
+
+  def post_data(id, %{title: title, content: content}) do
+    with path <- post_path(id),
+        :ok <- Path.dirname(path) |> File.mkdir_p(),
+        :ok <- File.write(path, content),
+        :ok <- post_metadata(id, %{title: title}) do
+          # TODO: commit
+          :ok
+        end
   end
 
   # read

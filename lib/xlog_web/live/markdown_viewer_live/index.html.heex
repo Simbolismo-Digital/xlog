@@ -1,8 +1,8 @@
 <.header>
-  Listing Markdown viewer
+  Lista de Publicações
   <:actions>
     <.link patch={~p"/markdown_viewer/new"}>
-      <.button>New Markdown viewer</.button>
+      <.button>Nova Publicação</.button>
     </.link>
   </:actions>
 </.header>
@@ -14,20 +14,21 @@
     fn {_id, markdown_viewer} -> JS.navigate(~p"/markdown_viewer/#{markdown_viewer}") end
   }
 >
-  <:col :let={{_id, post}} label="title"><%= post.title %></:col>
+  <:col :let={{_id, post}} label="título"><%= post.title %></:col>
   <:action :let={{_id, markdown_viewer}}>
     <div class="sr-only">
       <.link navigate={~p"/markdown_viewer/#{markdown_viewer}"}>Show</.link>
     </div>
-    <.link patch={~p"/markdown_viewer/#{markdown_viewer}/edit"}>Edit</.link>
+    <%!-- TODO: BUTTONS --%>
+    <%!-- <.link patch={~p"/markdown_viewer/#{markdown_viewer}/edit"}>Edit</.link> --%>
   </:action>
-  <:action :let={{id, markdown_viewer}}>
-    <.link
+  <:action :let={{_id, _markdown_viewer}}>
+    <%!-- <.link
       phx-click={JS.push("delete", value: %{id: markdown_viewer.id}) |> hide("##{id}")}
       data-confirm="Are you sure?"
     >
       Delete
-    </.link>
+    </.link> --%>
   </:action>
 </.table>
 

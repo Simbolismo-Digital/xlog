@@ -25,7 +25,7 @@ defmodule XlogWeb.MarkdownViewerLiveTest do
     test "saves new markdown_viewer", %{conn: conn} do
       {:ok, index_live, _html} = live(conn, ~p"/markdown_viewer")
 
-      assert index_live |> element("a", "New Markdown viewer") |> render_click() =~
+      assert index_live |> element("a", "Nova Publicação") |> render_click() =~
                "New Markdown viewer"
 
       assert_patch(index_live, ~p"/markdown_viewer/new")

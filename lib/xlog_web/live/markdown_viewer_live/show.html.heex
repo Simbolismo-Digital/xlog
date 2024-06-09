@@ -1,6 +1,6 @@
 <.header>
-  Markdown viewer <%!-- Markdown viewer <%= @markdown_viewer.id %> --%>
-  <:subtitle>This is a markdown_viewer record from your blog.</:subtitle>
+  Visualizando Publicação <%!-- Markdown viewer <%= @markdown_viewer.id %> --%>
+  <:subtitle>Esta é uma publicação na plataforma.</:subtitle>
 
   <%!-- <:actions>
     <.link patch={~p"/markdown_viewer/#{@markdown_viewer}/show/edit"} phx-click={JS.push_focus()}>
@@ -17,7 +17,7 @@
 <.list>
 </.list> --%>
 
-<.back navigate={~p"/markdown_viewer"}>Back to markdown_viewer</.back>
+<.back navigate={~p"/markdown_viewer"}>Voltar pra lista principal</.back>
 <%!-- 
 <.modal :if={@live_action == :edit} id="markdown_viewer-modal" show on_cancel={JS.patch(~p"/markdown_viewer/#{@markdown_viewer}")}>
   <.live_component

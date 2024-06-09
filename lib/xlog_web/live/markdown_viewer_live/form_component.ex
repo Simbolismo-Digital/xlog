@@ -10,7 +10,7 @@ defmodule XlogWeb.MarkdownViewerLive.FormComponent do
     <div>
       <.header>
         <%= @title %>
-        <:subtitle>Use this form to manage markdown_viewer records in your database.</:subtitle>
+        <:subtitle>Use este formulário para adicionar uma nova publicação.</:subtitle>
       </.header>
 
       <.simple_form
@@ -20,11 +20,11 @@ defmodule XlogWeb.MarkdownViewerLive.FormComponent do
         phx-submit="save"
       >
 
-        <.input id="markdown-editor-title" field={@form[:title]} type="text" label="Title" />
-        <.input id="markdown-editor-content" phx-hook="simpleMDE" field={@form[:content]} type="textarea" label="Content" />
+        <.input id="markdown-editor-title" field={@form[:title]} type="text" label="Título" />
+        <.input id="markdown-editor-content" phx-hook="simpleMDE" field={@form[:content]} type="textarea" label="Conteúdo" />
 
         <:actions>
-          <.button phx-disable-with="Saving...">Save Markdown viewer</.button>
+          <.button phx-disable-with="Salvando...">Publicar</.button>
         </:actions>
       </.simple_form>
     </div>
@@ -51,6 +51,7 @@ defmodule XlogWeb.MarkdownViewerLive.FormComponent do
   #   {:noreply, assign_form(socket, changeset)}
   # end
 
+  @impl true
   def handle_event("save", %{"markdown_viewer" => markdown_viewer_params}, socket) do
     save_markdown_viewer(socket, socket.assigns.action, markdown_viewer_params)
   end
@@ -65,7 +66,7 @@ defmodule XlogWeb.MarkdownViewerLive.FormComponent do
 
         {:noreply,
          socket
-         |> put_flash(:info, "Markdown viewer updated successfully")
+         |> put_flash(:info, "Publicação atualizada")
          |> push_patch(to: socket.assigns.patch)}
 
       {:error, %Ecto.Changeset{} = changeset} ->
@@ -80,8 +81,11 @@ defmodule XlogWeb.MarkdownViewerLive.FormComponent do
 
         {:noreply,
          socket
-         |> put_flash(:info, "Markdown viewer created successfully")
-         |> push_patch(to: socket.assigns.patch)}
+         |> put_flash(:info, "Publicação criada com sucesso")
+         |> push_patch(to: socket.assigns.patch)
+         |> push_event("simplemdeclear", %{})
+        }
+
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign_form(socket, changeset)}

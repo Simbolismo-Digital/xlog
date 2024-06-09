@@ -21,6 +21,7 @@ defmodule Xlog.MarkdownViewers do
     Xlog.Blog.content_path()
     |> File.ls!()
     |> Enum.map(&get_from_file/1)
+    |> Enum.sort_by(& &1.inserted_at, :desc)
   end
 
   def get_from_file(id) do
@@ -58,7 +59,7 @@ defmodule Xlog.MarkdownViewers do
       ** (Ecto.NoResultsError)
 
   """
-  def get_markdown_viewer!(id), do: Repo.get!(MarkdownViewer, id)
+  def get_markdown_viewer!(id), do: Xlog.Blog.post_data!(id)
 
   @doc """
   Creates a markdown_viewer.
@@ -73,10 +74,14 @@ defmodule Xlog.MarkdownViewers do
 
   """
   def create_markdown_viewer(attrs \\ %{}) do
-    IO.inspect(attrs)
-    %MarkdownViewer{}
-    |> MarkdownViewer.changeset(attrs)
-    |> Repo.insert()
+    view =
+      %MarkdownViewer{}
+      |> MarkdownViewer.changeset(attrs)
+      |> Ecto.Changeset.apply_changes()
+
+    with :ok <- Xlog.Blog.post_data(view.id, view) do
+      {:ok, view}
+    end
   end
 
   @doc """

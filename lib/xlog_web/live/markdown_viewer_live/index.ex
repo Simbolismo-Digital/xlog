@@ -16,25 +16,25 @@ defmodule XlogWeb.MarkdownViewerLive.Index do
 
   defp apply_action(socket, :edit, %{"id" => id}) do
     socket
-    |> assign(:page_title, "Edit Markdown viewer")
+    |> assign(:page_title, "Editar Publicação")
     |> assign(:markdown_viewer, MarkdownViewers.get_markdown_viewer!(id))
   end
 
   defp apply_action(socket, :new, _params) do
     socket
-    |> assign(:page_title, "New Markdown viewer")
+    |> assign(:page_title, "Nova Publicação")
     |> assign(:markdown_viewer, %MarkdownViewer{})
   end
 
   defp apply_action(socket, :index, _params) do
     socket
-    |> assign(:page_title, "Listing Markdown viewer")
+    |> assign(:page_title, "Lista de Publicações")
     |> assign(:markdown_viewer, nil)
   end
 
   @impl true
   def handle_info({XlogWeb.MarkdownViewerLive.FormComponent, {:saved, markdown_viewer}}, socket) do
-    {:noreply, stream_insert(socket, :markdown_viewer_collection, markdown_viewer)}
+    {:noreply, stream_insert(socket, :markdown_viewer_collection, markdown_viewer, at: 0)}
   end
 
   @impl true

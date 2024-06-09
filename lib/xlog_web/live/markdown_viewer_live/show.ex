@@ -11,8 +11,8 @@ defmodule XlogWeb.MarkdownViewerLive.Show do
   end
 
   @impl true
-  def handle_params(params, _url, socket) do
-    md_content = Xlog.Blog.post_data(params["id"])
+  def handle_params(%{"id" => id}, _url, socket) do
+    md_content = MarkdownViewers.get_markdown_viewer!(id)
 
     {:ok, html_content, _} = Functions.as_html(md_content, gfm: true, breaks: true)
 
