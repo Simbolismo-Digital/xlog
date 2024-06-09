@@ -32,6 +32,12 @@
   </:action>
 </.table>
 
+<%= if !@disabled do %>
+  <div id="pagination-controls">
+    <.button phx-click="next_page">Mais</.button>
+  </div>
+<% end %>
+
 <.modal
   :if={@live_action in [:new, :edit]}
   id="markdown_viewer-modal"

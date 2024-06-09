@@ -13,15 +13,15 @@ defmodule XlogWeb.MarkdownViewerLive.FormComponent do
         <:subtitle>Use este formulário para adicionar uma nova publicação.</:subtitle>
       </.header>
 
-      <.simple_form
-        for={@form}
-        id="markdown_viewer-form"
-        phx-target={@myself}
-        phx-submit="save"
-      >
-
+      <.simple_form for={@form} id="markdown_viewer-form" phx-target={@myself} phx-submit="save">
         <.input id="markdown-editor-title" field={@form[:title]} type="text" label="Título" />
-        <.input id="markdown-editor-content" phx-hook="simpleMDE" field={@form[:content]} type="textarea" label="Conteúdo" />
+        <.input
+          id="markdown-editor-content"
+          phx-hook="simpleMDE"
+          field={@form[:content]}
+          type="textarea"
+          label="Conteúdo"
+        />
 
         <:actions>
           <.button phx-disable-with="Salvando...">Publicar</.button>
@@ -83,9 +83,7 @@ defmodule XlogWeb.MarkdownViewerLive.FormComponent do
          socket
          |> put_flash(:info, "Publicação criada com sucesso")
          |> push_patch(to: socket.assigns.patch)
-         |> push_event("simplemdeclear", %{})
-        }
-
+         |> push_event("simplemdeclear", %{})}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign_form(socket, changeset)}

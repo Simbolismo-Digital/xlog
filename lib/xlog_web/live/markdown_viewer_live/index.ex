@@ -4,9 +4,15 @@ defmodule XlogWeb.MarkdownViewerLive.Index do
   alias Xlog.MarkdownViewers
   alias Xlog.MarkdownViewers.MarkdownViewer
 
+  @per_page 2
+
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, stream(socket, :markdown_viewer_collection, MarkdownViewers.list_markdown_viewer())}
+    {:ok,
+     socket
+     |> assign(:page, 0)
+     |> assign(:disabled, false)
+     |> stream(:markdown_viewer_collection, MarkdownViewers.list_markdown_viewer(@per_page, 0))}
   end
 
   @impl true
@@ -38,6 +44,18 @@ defmodule XlogWeb.MarkdownViewerLive.Index do
   end
 
   @impl true
+  def handle_event("next_page", _, socket) do
+    new_page = socket.assigns.page + 1
+
+    items = MarkdownViewers.list_markdown_viewer(@per_page, new_page)
+
+    {:noreply,
+     socket
+     |> assign(page: new_page)
+     |> assign(disabled: Enum.empty?(items))
+     |> stream(:markdown_viewer_collection, items)}
+  end
+
   def handle_event("delete", %{"id" => id}, socket) do
     markdown_viewer = MarkdownViewers.get_markdown_viewer!(id)
     {:ok, _} = MarkdownViewers.delete_markdown_viewer(markdown_viewer)

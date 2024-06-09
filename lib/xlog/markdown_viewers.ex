@@ -17,17 +17,26 @@ defmodule Xlog.MarkdownViewers do
       [%MarkdownViewer{}, ...]
 
   """
-  def list_markdown_viewer do
-    Xlog.Blog.content_path()
-    |> File.ls!()
+  def list_markdown_viewer(max, page) do
+    Xlog.Blog.posts(max, max * page)
+    |> Xlog.Blog.checkout()
     |> Enum.map(&get_from_file/1)
     |> Enum.sort_by(& &1.inserted_at, :desc)
   end
 
-  def get_from_file(id) do
-    {:ok, creation_time, modification_time} = file_times(Xlog.Blog.post_path(id))
+  def get_from_file(path) do
+    id = Path.basename(path)
+    path = Xlog.Blog.post_data_path(id)
+    {:ok, creation_time, modification_time} = file_times(path)
     {:ok, metadata} = Xlog.Blog.post_metadata(id)
-    %MarkdownViewer{id: id, title: metadata.title, metadata: metadata, inserted_at: creation_time, updated_at: modification_time}
+
+    %MarkdownViewer{
+      id: id,
+      title: metadata.title,
+      metadata: metadata,
+      inserted_at: creation_time,
+      updated_at: modification_time
+    }
   end
 
   def file_times(path) do

@@ -20,10 +20,15 @@ defmodule Xlog.MarkdownViewers.MarkdownViewer do
 
   def merge_title(changeset) do
     case get_change(changeset, :title) do
-      "" -> changeset
-      nil -> changeset
+      "" ->
+        changeset
+
+      nil ->
+        changeset
+
       title ->
         content = get_change(changeset, :content)
+
         changeset
         |> put_change(
           :content,

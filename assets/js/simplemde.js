@@ -24,7 +24,6 @@ export default function setupSimpleMDE(liveSocket) {
         // Listen for changes in the input field and save to localStorage
         document.getElementById("markdown-editor-title").addEventListener("input", function() {
           var content = this.value;
-          console.log(content);
           localStorage.setItem("markdown-editor-title", content);
         });
         

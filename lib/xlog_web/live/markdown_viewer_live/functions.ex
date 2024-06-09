@@ -16,7 +16,9 @@ defmodule XlogWeb.MarkdownViewerLive.Functions do
   """
   def as_html(lines, options \\ %Earmark.Options{}) do
     lines
-    |> EEx.eval_string([], functions: [{__MODULE__.Implementation, __MODULE__.Implementation.__info__(:functions)}])
+    |> EEx.eval_string([],
+      functions: [{__MODULE__.Implementation, __MODULE__.Implementation.__info__(:functions)}]
+    )
     |> Earmark.as_html(options)
   end
 end
