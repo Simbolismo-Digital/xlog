@@ -7,6 +7,7 @@ defmodule Xlog.MarkdownViewers do
   alias Xlog.Repo
 
   alias Xlog.MarkdownViewers.MarkdownViewer
+  alias Xlog.Posts
 
   @doc """
   Returns the list of markdown_viewer.
@@ -18,29 +19,7 @@ defmodule Xlog.MarkdownViewers do
 
   """
   def list_markdown_viewer(max, page) do
-    Xlog.Blog.posts(max, max * page)
-    |> Xlog.Blog.checkout()
-    |> Enum.map(&get_from_file/1)
-    |> Enum.sort_by(& &1.inserted_at, :desc)
-  end
-
-  def get_from_file(path) do
-    id = Path.basename(path)
-    {:ok, creation_time} = Xlog.Blog.creation_time(path)
-    {:ok, metadata} = Xlog.Blog.post_metadata(id)
-
-    %MarkdownViewer{
-      id: id,
-      title: metadata.title,
-      metadata: metadata,
-      inserted_at: creation_time,
-      updated_at: creation_time
-    }
-  end
-
-  def iso8601(time) do
-    NaiveDateTime.from_erl!(time)
-    |> NaiveDateTime.to_iso8601()
+    Posts.list_posts(max, page)
   end
 
   @doc """
@@ -57,7 +36,7 @@ defmodule Xlog.MarkdownViewers do
       ** (Ecto.NoResultsError)
 
   """
-  def get_markdown_viewer!(id), do: Xlog.Blog.post_data!(id)
+  def get_markdown_viewer!(id), do: Posts.get_post!(id)
 
   @doc """
   Creates a markdown_viewer.
@@ -77,7 +56,7 @@ defmodule Xlog.MarkdownViewers do
       |> MarkdownViewer.changeset(attrs)
       |> Ecto.Changeset.apply_changes()
 
-    with :ok <- Xlog.Blog.post_data(view.id, view) do
+    with :ok <- Xlog.Posts.create_post(view) do
       {:ok, view}
     end
   end

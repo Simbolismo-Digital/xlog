@@ -1,7 +1,4 @@
 defmodule Xlog.Blog do
-  # @user_id "2e7dfede-0852-4990-b4c0-3510c520dfb9"
-  # @post_1_id "bec2178e-be3e-4e0d-b492-33ddef8ecb6d"
-
   def url() do
     "git@github.com:Simbolismo-Digital/blog.git"
   end
@@ -10,58 +7,13 @@ defmodule Xlog.Blog do
     "content/blog"
   end
 
-  def content_path() do
-    "#{repo_path()}/content"
-  end
-
-  def post_path(id) do
-    "#{content_path()}/#{id}"
-  end
-
-  def post_data_path(id) do
-    "#{post_path(id)}/README.md"
-  end
-
-  def post_data!(id) do
-    post_data_path(id)
-    |> File.read!()
-  end
-
-  def post_data(id, %{title: title, content: content}) do
-    with path <- post_data_path(id),
-         :ok <- Path.dirname(path) |> File.mkdir_p(),
-         :ok <- File.write(path, content),
-         :ok <- post_metadata(id, %{title: title}),
-         :ok <- commit_post(id, title) do
-      # TODO: commit
-      :ok
-    end
-  end
-
-  # read
-  def post_metadata(id) do
-    path = "#{content_path()}/#{id}/meta.json"
-
-    with {:ok, content} <- File.read(path) do
-      Jason.decode(content, keys: :atoms)
-    end
-  end
-
   # write
-  def post_metadata(id, metadata) do
-    path = "#{content_path()}/#{id}/meta.json"
-
-    with {:ok, json} <- Jason.encode(metadata) do
-      File.write(path, json)
-    end
-  end
-
   def repository() do
     %Git.Repository{path: "#{File.cwd!()}/#{repo_path()}"}
   end
 
   def clone() do
-    if File.exists?(content_path()) do
+    if File.exists?(repo_path()) do
       {:ok, repository()}
     else
       with {:ok, _repo} <- Git.clone(["--no-checkout", url(), repo_path()]) do
@@ -80,16 +32,33 @@ defmodule Xlog.Blog do
     end
   end
 
-  def commit_post(id, title) do
-    with {:ok, _} <- Git.add(repository(), "content/#{id}"),
-      {:ok, _} <- Git.commit(repository(), "-m add post/#{id} #{title}"),
-      {:ok, _} <- Git.branch(Xlog.Blog.repository(), ["temp"]),
-      {:ok, _} <- Git.push(Xlog.Blog.repository(), ["origin", "temp", "--force"]),
-      {url, 0} <- create_pr(),
-      {_, 0} <- merge_pr(String.trim(url)),
-      {:ok, _} <- Git.branch(Xlog.Blog.repository(), ["-D", "temp"]) do
+  def commit_and_merge(relative_path, message) do
+    repository = repository()
+    with :ok <- commit(repository, relative_path, message),
+      :ok <- create_and_merge_pr(),
+      {:ok, _} <- clean_temp(repository) do
         :ok
       end
+  end
+
+  def commit(repository, path, message) do
+    with {:ok, _} <- Git.add(repository, path),
+      {:ok, _} <- Git.commit(repository, "-m #{message}"),
+      {:ok, _} <- Git.branch(repository, ["temp"]),
+      {:ok, _} <- Git.push(repository, ["origin", "temp", "--force"]) do
+        :ok
+      end
+  end
+
+  def create_and_merge_pr() do
+    with {url, 0} <- create_pr(),
+      {_, 0} <- merge_pr(String.trim(url)) do
+        :ok
+    end
+  end
+
+  def clean_temp(repository) do
+    Git.branch(repository, ["-D", "temp"])
   end
 
   def create_pr() do
@@ -97,22 +66,20 @@ defmodule Xlog.Blog do
   end
 
   def merge_pr(url) do
-    System.cmd("gh", ["pr", "merge", "--merge", url], cd: Xlog.Blog.repo_path())
+    System.cmd("gh", ["pr", "merge", "--merge", url], cd: repo_path())
   end
 
-  @spec posts(number()) :: list()
-  def posts(max \\ 10, skip \\ 0) do
+  def get_contents(contents, max \\ 10, skip \\ 0) do
     repository = repository()
 
-    case log(repository, "content", max, skip) do
-      [] ->
-        []
+    case log(repository, contents, max, skip) do
+      [] -> []
 
       commit_hashes ->
-        commit_hashes
-        |> commit_pair()
-        |> diff_name_only!(repository)
-        |> post_paths()
+        commit_range(commit_hashes)
+        |> get_file_paths_between_commits!(repository)
+        |> content_base_path(contents)
+        |> dbg()
     end
   end
 
@@ -125,9 +92,9 @@ defmodule Xlog.Blog do
     ])
   end
 
-  # git log --max-count=2 --skip=0 --pretty=format:'%H | %aI | %s' --date=format-local:%Y-%m-%dT%H:%M:%S%z --relative=content --no-merges origin/main
-  # git log --max-count=2 --skip=0 --pretty=format:%H --relative=content --no-merges origin/main
-  def log(repository, resource \\ "content", max \\ 10, skip \\ 0) do
+  # git log --max-count=2 --skip=0 --pretty=format:'%H | %aI | %s' --date=format-local:%Y-%m-%dT%H:%M:%S%z --relative=posts --no-merges origin/main
+  # git log --max-count=2 --skip=0 --pretty=format:%H --relative=posts --no-merges origin/main
+  def log(repository, resource, max \\ 10, skip \\ 0) do
     repository
     |> Git.log([
       "--pretty=format:%H",
@@ -140,13 +107,13 @@ defmodule Xlog.Blog do
     |> split!()
   end
 
-  defp commit_pair(commit_hashes) do
+  defp commit_range(commit_hashes) do
     "#{List.first(commit_hashes)}..#{List.last(commit_hashes)}"
   end
 
-  def diff_name_only!(commit_pair, repository) do
+  def get_file_paths_between_commits!(commit_range, repository) do
     repository
-    |> Git.diff(["--name-only", commit_pair])
+    |> Git.diff(["--name-only", commit_range])
     |> split!()
   end
 
@@ -154,14 +121,14 @@ defmodule Xlog.Blog do
     String.split(infos, "\n", trim: true)
   end
 
-  defp post_paths(files) do
+  defp content_base_path(files, prefix) do
     files
     |> Enum.map(&Path.dirname/1)
     |> Enum.uniq()
-    |> filter_content_uuid()
+    |> filter_content_uuid(prefix)
   end
 
-  defp filter_content_uuid(paths) do
-    Enum.filter(paths, & Regex.match?(~r/^content\/[0-9a-fA-F-]{36}$/, &1))
+  defp filter_content_uuid(paths, prefix) do
+    Enum.filter(paths, & Regex.match?(~r/^#{prefix}\/[0-9a-fA-F-]{36}$/, &1))
   end
 end

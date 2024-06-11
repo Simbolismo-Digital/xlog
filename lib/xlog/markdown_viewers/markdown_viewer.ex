@@ -15,7 +15,18 @@ defmodule Xlog.MarkdownViewers.MarkdownViewer do
     |> cast(attrs, [:title, :content])
     |> validate_required([:title, :content])
     |> put_change(:id, Ecto.UUID.generate())
+    |> put_metadata()
     |> merge_title()
+  end
+
+  def put_metadata(changeset) do
+    case get_change(changeset, :title) do
+      "" -> put_change(changeset, :metadata, %{title: "Untitled-#{get_change(changeset, :id)}"})
+
+      nil -> put_change(changeset, :metadata, %{title: "Untitled-#{get_change(changeset, :id)}"})
+
+      title -> put_change(changeset, :metadata, %{title: title})
+    end
   end
 
   def merge_title(changeset) do
