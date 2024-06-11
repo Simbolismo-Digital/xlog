@@ -26,8 +26,7 @@ defmodule Xlog.MarkdownViewers do
 
   def get_from_file(path) do
     id = Path.basename(path)
-    path = Xlog.Blog.post_data_path(id)
-    {:ok, creation_time, modification_time} = file_times(path)
+    {:ok, creation_time} = Xlog.Blog.creation_time(path)
     {:ok, metadata} = Xlog.Blog.post_metadata(id)
 
     %MarkdownViewer{
@@ -35,18 +34,8 @@ defmodule Xlog.MarkdownViewers do
       title: metadata.title,
       metadata: metadata,
       inserted_at: creation_time,
-      updated_at: modification_time
+      updated_at: creation_time
     }
-  end
-
-  def file_times(path) do
-    case File.stat(path) do
-      {:ok, %File.Stat{ctime: creation_time, mtime: modification_time}} ->
-        {:ok, iso8601(creation_time), iso8601(modification_time)}
-
-      {:error, reason} ->
-        {:error, reason}
-    end
   end
 
   def iso8601(time) do

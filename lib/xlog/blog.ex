@@ -31,8 +31,8 @@ defmodule Xlog.Blog do
     with path <- post_data_path(id),
          :ok <- Path.dirname(path) |> File.mkdir_p(),
          :ok <- File.write(path, content),
-         :ok <- post_metadata(id, %{title: title}) do
-        #  :ok <- commit_post(id, title) do
+         :ok <- post_metadata(id, %{title: title}),
+         :ok <- commit_post(id, title) do
       # TODO: commit
       :ok
     end
@@ -82,19 +82,25 @@ defmodule Xlog.Blog do
 
   def commit_post(id, title) do
     with {:ok, _} <- Git.add(repository(), "content/#{id}"),
-      {:ok, _} <- Git.commit(repository(), "-m add post/#{id} #{title}") do
-        # Git.pull(repository(), "--rebase")
-      # {:ok, _} <- Git.push(repository()) do
+      {:ok, _} <- Git.commit(repository(), "-m add post/#{id} #{title}"),
+      {:ok, _} <- Git.branch(Xlog.Blog.repository(), ["temp"]),
+      {:ok, _} <- Git.push(Xlog.Blog.repository(), ["origin", "temp", "--force"]),
+      {url, 0} <- create_pr(),
+      {_, 0} <- merge_pr(String.trim(url)),
+      {:ok, _} <- Git.branch(Xlog.Blog.repository(), ["-D", "temp"]) do
         :ok
       end
   end
 
-  def ls_files() do
-    repository()
-    |> Git.ls_tree(["main", "--", "content/"])
-    |> split!()
+  def create_pr() do
+    System.cmd("gh", ["pr", "create", "--head", "temp", "-f"], cd: repo_path())
   end
 
+  def merge_pr(url) do
+    System.cmd("gh", ["pr", "merge", "--merge", url], cd: Xlog.Blog.repo_path())
+  end
+
+  @spec posts(number()) :: list()
   def posts(max \\ 10, skip \\ 0) do
     repository = repository()
 
@@ -108,6 +114,15 @@ defmodule Xlog.Blog do
         |> diff_name_only!(repository)
         |> post_paths()
     end
+  end
+
+  def creation_time(file_path) do
+    repository()
+    |> Git.log([
+      "--pretty=format:%aI",
+      "--date=format-local:%Y-%m-%dT%H:%M:%S%z",
+      file_path
+    ])
   end
 
   # git log --max-count=2 --skip=0 --pretty=format:'%H | %aI | %s' --date=format-local:%Y-%m-%dT%H:%M:%S%z --relative=content --no-merges origin/main
